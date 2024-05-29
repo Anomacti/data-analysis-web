@@ -4,4 +4,4 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 EXPOSE 8501
 COPY . .
-CMD ["streamlit", "run", "learning.py"]
+CMD ["streamlit", "run", "application.py"]
