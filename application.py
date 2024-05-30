@@ -7,19 +7,21 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 
-def standardize_data(data):
-    # Select only the numeric features
-    numeric_data = data.select_dtypes(include=['number'])
+def clean_data(data):
+    numeric_data = data.select_dtypes(exclude=["object"]).columns
+    data = data[numeric_data]
 
-    if numeric_data.empty:
+    if data.empty:
         st.write("No numeric features found in the dataset.")
+    else:
+        # Handle missing values
+        data = data.fillna(data.mean())
+        return data
 
-    # Handle missing values
-    numeric_data = numeric_data.fillna(numeric_data.mean())
-
+def standardize_data(data):
     # Standardize the data
     scaler = StandardScaler()
-    standardized_data = scaler.fit_transform(numeric_data)
+    standardized_data = scaler.fit_transform(data)
 
     return standardized_data
 
@@ -47,13 +49,30 @@ def apply_tsne(data):
 
     return tsne_df 
 
-def apply_k_nearest(data):
-    st.write("Under construction")
-
 
 # Function to display content for the "Home" tab
-def show_home(data):
-    st.title('Data upload')
+def show_home(data, cleaned_data):
+    st.title('Home page')
+
+    st.title("Testing/Debugging")
+
+    st.subheader("Normal data")
+    st.dataframe(data)
+
+    st.subheader("Cleaned data")
+    st.write(cleaned_data)
+
+    st.subheader('Normal Data types')
+    st.write(data.dtypes)
+
+    st.subheader('Cleaned Data types')
+    st.write(cleaned_data.dtypes)
+
+
+# Function to display content for the "2D Visualization" tab
+def show_2D_visual(data):
+    st.title("2D Visualization Tab")
+    st.write("This is the 2D Visualization Tab.")
 
     # Title of the Streamlit app
     st.title('Exploratory Data Analysis')
@@ -71,12 +90,7 @@ def show_home(data):
     st.subheader('Statistical Summary')
     st.write(data.describe())
 
-# Function to display content for the "2D Visualization" tab
-def show_2D_visual(data):
-    st.title("2D Visualization Tab")
-    st.write("This is the 2D Visualization Tab tab. Learn more about us here.")
     st.sidebar.write("This is the 2D Visualization Tab sidebar.")
-
     option = st.sidebar.selectbox(
         "Select 2D visualization algorithm",
         ("-- SELECT --", "PCA", "TSNE"))
@@ -105,24 +119,6 @@ def show_2D_visual(data):
         st.scatter_chart(tsne_df)
 
 
-# Function to display content for the "Machine Learning" tab
-def show_machine_learning_classification(data):
-    st.title("Machine Learning classification tab")
-    st.write("This is the Machine Learning classification tab. Get in touch with us here.")
-    st.sidebar.write("This is the Machine Learning classifiction sidebar.")
-
-    option = st.sidebar.selectbox(
-        "Select 2D visualization algorithm",
-        ("-- SELECT --", "K-Nearest Neighbors"))
-
-    # if option == "k-Nearest Neighbors":
-        # Use algorithm
-
-def show_machine_learning_clustering(data):
-    st.title("Machine Learning clusteing tab")
-    st.write("This is the Machine Learning clusteing tab. Get in touch with us here.")
-    st.sidebar.write("This is the Machine Learning clusteing sidebar.")
-
 def show_result():
     st.title("Result and Comparison tab")
     st.write("This is where the results will be displayed and compared")
@@ -135,46 +131,55 @@ def show_info():
 def main():
     # Sidebar with tabs
     st.sidebar.title("File Upload")
-    uploaded_file = st.sidebar.file_uploader('Upload your tabular data here', type=['txt', 'csv', 'xlsx'])
+    uploaded_file = st.sidebar.file_uploader('Upload your tabular data here', type=['txt', 'csv', 'xls', 'xlsx'])
+
+    dataset_has_index = st.sidebar.checkbox("Check this if your dataset has an index column ?")
 
     st.sidebar.title("Navigation")
     tab = st.sidebar.radio("Go to", ["Home", "2D Visualization", "Machine Learning: Classification", "Machine Learning: Clustering", "Result", "Info"])
 
     is_file_uploaded = False
+    cleaned_data = None
 
     # Check if a file has been uploaded
     if uploaded_file is not None:
         # Read the uploaded file as a DataFrame using pandas, assuming no header
-        data = pd.read_csv(uploaded_file, encoding='latin1')
-        is_file_uploaded = True
+        if dataset_has_index:
+            data = pd.read_csv(uploaded_file, encoding='latin1', index_col=0)
+            data = data.reset_index(drop=True)
+        else:
+            data = pd.read_csv(uploaded_file, encoding='latin1')
+            data = data.reset_index(drop=True)
 
+        is_file_uploaded = True
+        cleaned_data = clean_data(data)
 
     # Main content changes based on selected tab
-    if tab == "Home":
-        if is_file_uploaded:
-            show_home(data)
-        else:
-            st.write("Upload data first")
-    elif tab == "2D Visualization":
-        if is_file_uploaded:
-            show_2D_visual(data)
-        else:
-            st.write("Upload data first")
-    elif tab == "Machine Learning: Classification":
-        if is_file_uploaded:
-            show_machine_learning_classification(data)
-        else:
-            st.write("Upload data first")
-    elif tab == "Machine Learning: Clustering":
-        if is_file_uploaded:
-            show_machine_learning_clustering(data)
-        else:
-            st.write("Upload data first")
-    elif tab == "Result":
-        show_result()
-    elif tab == "Info":
-        show_info()
-
+    if is_file_uploaded:
+        if tab == "Home":
+            show_home(data, cleaned_data)
+        elif tab == "2D Visualization":
+            show_2D_visual(cleaned_data)
+        elif tab == "Machine Learning: Classification":
+            # show_machine_learning_classification(data)
+            st.write("TEMP: Do machine learning")
+        elif tab == "Machine Learning: Clustering":
+            # show_machine_learning_clustering(data)
+            st.write("TEMP: Do machine learning")
+        elif tab == "Result":
+            show_result()
+        elif tab == "Info":
+            show_info()
+    else:
+        st.write("Upload data first")
 
 if __name__ == "__main__":
     main()
+
+
+
+# TODO: 
+# 1. Clean the unnessasarry text
+# 2. Remove any debugging writes/prints
+# 3. Finish the structure of "Home" and "2D Visual" tabs
+# 4. Proceed to the ML tabs
