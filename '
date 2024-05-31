@@ -176,32 +176,52 @@ def apply_dbscan(data):
     return labels, dbscan, performance_metrics
 
 
-def show_home():
-    st.title("Home page")
+# Function to display content for the "Home" tab
+def show_home(data, cleaned_data):
+    st.title('Home page')
 
+    st.title("Testing/Debugging")
+
+    st.subheader("Normal data")
+    st.dataframe(data)
+
+    st.subheader("Cleaned data")
+    st.write(cleaned_data)
+
+    st.subheader('Normal Data types')
+    st.write(data.dtypes)
+
+    st.subheader('Cleaned Data types')
+    st.write(cleaned_data.dtypes)
+
+
+
+# Function to display content for the "2D Visualization" tab
 def show_2D_visual(data):
     st.title("2D Visualization Tab")
-    st.write("In this tab you can visualize different aspects of your data and perform Dimensionality reduction.")
+    st.write("This is the 2D Visualization Tab.")
 
-    st.title("Exploratory Data Analysis")
+    # Title of the Streamlit app
+    st.title('Exploratory Data Analysis')
 
     # Display the dataframe
-    st.subheader("Data")
+    st.subheader('Data')
     st.write(data.head())
 
+    # Display basic information
+    st.subheader('Data Information')
+    buffer = data.info(buf=None)
+    st.text(buffer)
+
     # Display statistical summary
-    st.subheader("Statistical Summary")
+    st.subheader('Statistical Summary')
     st.write(data.describe())
 
 
     # Display Data scatter chart
-    st.subheader("Non standardized data")
-    st.write("In order for the algorithms to work, non-numeric features where removed")
     st.scatter_chart(data)
 
     # Display Standardized data scatter chart
-    st.subheader("Standardized data")
-    st.write("In order for the algorithms to work, non-numeric features where removed")
     data_columns = data.columns.tolist()
     standardized_data = standardize_data(data)
     std_data = pd.DataFrame(standardized_data)
@@ -214,7 +234,7 @@ def show_2D_visual(data):
         ["-- SELECT --", "PCA", "TSNE"])
 
     if option == "PCA":
-        st.title("PCA")
+        st.title('PCA')
         pca_df = apply_pca(data)
 
         # Display PCA result
@@ -225,7 +245,7 @@ def show_2D_visual(data):
         st.write("PCA Plot")
         st.scatter_chart(pca_df)
     elif option == "TSNE":
-        st.title("TSNE")
+        st.title('TSNE')
         tsne_df = apply_tsne(data)
 
         # Display TSNE result
@@ -331,31 +351,42 @@ def show_ml_classification(data):
 
 
 
-        st.header("Results and comparisons")
+    st.header("Results and comparisons")
 
-        st.subheader("Accuracy")
-        if results["k-nearest"]["performance_metrics"]["accuracy"] > results["random forests"]["performance_metrics"]["accuracy"]:
-            st.write("K-nearest has better accuracy")
-        else:
-            st.write("Random forrest has better accuracy")
 
-        st.subheader("Precision")
-        if results["k-nearest"]["performance_metrics"]["precision"] > results["random forests"]["performance_metrics"]["precision"]:
-            st.write("K-nearest has better precision")
-        else:
-            st.write("Random forrest has better precision")
+    st.subheader("Accuracy")
+    if results["k-nearest"]["performance_metrics"]["accuracy"] > results["random forests"]["performance_metrics"]["accuracy"]:
+        st.write("K-nearest has better accuracy")
+    else:
+        st.write("Random forrest has better accuracy")
 
-        st.subheader("Recall")
-        if results["k-nearest"]["performance_metrics"]["recall"] > results["random forests"]["performance_metrics"]["recall"]:
-            st.write("K-nearest has better recall")
-        else:
-            st.write("Random forrest has better recall")
+    st.subheader("Precision")
+    if results["k-nearest"]["performance_metrics"]["precision"] > results["random forests"]["performance_metrics"]["precision"]:
+        st.write("K-nearest has better precision")
+    else:
+        st.write("Random forrest has better precision")
 
-        st.subheader("F1")
-        if results["k-nearest"]["performance_metrics"]["f1"] > results["random forests"]["performance_metrics"]["f1"]:
-            st.write("K-nearest has better f1")
-        else:
-            st.write("Random forrest has better f1")
+    st.subheader("Recall")
+    if results["k-nearest"]["performance_metrics"]["recall"] > results["random forests"]["performance_metrics"]["recall"]:
+        st.write("K-nearest has better recall")
+    else:
+        st.write("Random forrest has better recall")
+
+    st.subheader("F1")
+    if results["k-nearest"]["performance_metrics"]["f1"] > results["random forests"]["performance_metrics"]["f1"]:
+        st.write("K-nearest has better f1")
+    else:
+        st.write("Random forrest has better f1")
+
+    st.subheader("Confusion Matrix")
+    if results["k-nearest"]["performance_metrics"]["cm"] > results["random forests"]["performance_metrics"]["cm"]:
+        # st.write("K-nearest has better f1")
+        st.write("sdf")
+    else:
+        st.write("Random forrest has better f1")
+
+    return results
+
 
 
 def show_ml_clustering(data):
@@ -405,21 +436,14 @@ def show_ml_clustering(data):
         st.subheader("Precision:")
         st.write(results["DBSCAN"]["performance_metrics"]["calinski_harabasz"])
 
+    return results
 
-    st.header("Results and comparisons")
 
-    st.subheader("Silhouette Score")
-    if results["k-means"]["performance_metrics"]["silhouette"] > results["DBSCAN"]["performance_metrics"]["silhouette"]:
-        st.write("K-nearest has better silhouette")
-    else:
-        st.write("Random forrest has better silhouette")
+def show_result(performance_metrics):
+    st.title("Result and Comparison tab")
+    st.write("This is where the results will be displayed and compared")
 
-    st.subheader("Calinski Harabasz")
-    if results["k-means"]["performance_metrics"]["calinski_harabasz"] > results["DBSCAN"]["performance_metrics"]["calinski_harabasz"]:
-        st.write("K-nearest has better calinski_harabasz")
-    else:
-        st.write("Random forrest has better calinski_harabasz")
-
+    st.subheader("Results of Classification algorithms:")
 
 
 
@@ -432,21 +456,23 @@ def show_info():
 def main():
     # Sidebar with tabs
     st.sidebar.title("File Upload")
-    uploaded_file = st.sidebar.file_uploader("Upload your tabular data here", type=["txt", "csv", "xls", "xlsx"])
+    uploaded_file = st.sidebar.file_uploader('Upload your tabular data here', type=['txt', 'csv', 'xls', 'xlsx'])
 
-    dataset_has_index = st.sidebar.checkbox("Check if provided dataset has index column")
+    dataset_has_index = st.sidebar.checkbox("Check this if your dataset has an index column ?")
 
     st.sidebar.title("Navigation")
-    tab = st.sidebar.radio("Choose the tab you want to see", ["Home", "2D Visualization", "Machine Learning: Classification", "Machine Learning: Clustering", "Info"])
+    tab = st.sidebar.radio("Go to", ["Home", "2D Visualization", "Machine Learning: Classification", "Machine Learning: Clustering", "Result", "Info"])
 
     is_file_uploaded = False
     cleaned_data = None
-    # performance_metrics = {
-    #     "classification": {},
-    #     "clustering": {}
-    # }
+    performance_metrics = {
+        "classification": {},
+        "clustering": {}
+    }
 
+    # Check if a file has been uploaded
     if uploaded_file is not None:
+        # Read the uploaded file as a DataFrame using pandas, assuming no header
         if dataset_has_index:
             data = pd.read_csv(uploaded_file, encoding='latin1', index_col=0)
             data = data.reset_index(drop=True)
@@ -460,17 +486,23 @@ def main():
     # Main content changes based on selected tab
     if is_file_uploaded:
         if tab == "Home":
-            show_home()
+            show_home(data, cleaned_data)
         elif tab == "2D Visualization":
             show_2D_visual(cleaned_data)
         elif tab == "Machine Learning: Classification":
-            show_ml_classification(cleaned_data)
+            performance_metrics["classification"] = show_ml_classification(cleaned_data)
         elif tab == "Machine Learning: Clustering":
-            show_ml_clustering(cleaned_data)
+           performance_metrics["clustering"] = show_ml_clustering(cleaned_data)
+        elif tab == "Result":
+            show_result(performance_metrics)
         elif tab == "Info":
             show_info()
     else:
         st.write("Upload data first")
+
+
+    st.header("War crimes continued")
+    st.write(performance_metrics)
 
 
 if __name__ == "__main__":
