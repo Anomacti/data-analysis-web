@@ -137,21 +137,16 @@ def show_2D_visual(data):
 
     st.title("Exploratory Data Analysis")
 
-    # Display the dataframe
     st.subheader("Data")
     st.write(data.head())
 
-    # Display statistical summary
     st.subheader("Statistical Summary")
     st.write(data.describe())
 
-
-    # Display Data scatter chart
     st.subheader("Non standardized data")
     st.write("In order for the algorithms to work, non-numeric features where removed")
     st.scatter_chart(data)
 
-    # Display Standardized data scatter chart
     st.subheader("Standardized data")
     st.write("In order for the algorithms to work, non-numeric features where removed")
     data_columns = data.columns.tolist()
@@ -368,11 +363,9 @@ def show_ml_clustering(data):
 
 def show_info():
     st.title("Info tab")
-    st.write("Show info about the project")
 
 
 def main():
-    # Sidebar with tabs
     st.sidebar.title("File Upload")
     uploaded_file = st.sidebar.file_uploader("Upload your tabular data here", type=["txt", "csv", "xls", "xlsx"])
 
