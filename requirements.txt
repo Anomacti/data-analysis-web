@@ -1,6 +1,3 @@
 pandas
 scikit-learn
-pycaret
-numpy
-matlib
 streamlit
