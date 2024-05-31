@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.neighbors import KNeighborsClassifier
@@ -12,8 +11,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_score, recall_score, f1_score
 from sklearn.metrics import silhouette_score, calinski_harabasz_score
 
-import matplotlib.pyplot as plt
-
 
 def clean_data(data):
     numeric_data = data.select_dtypes(exclude=["object"]).columns
@@ -22,12 +19,10 @@ def clean_data(data):
     if data.empty:
         st.write("No numeric features found in the dataset.")
     else:
-        # Handle missing values
         data = data.fillna(data.mean())
         return data
 
 def standardize_data(data):
-    # Standardize the data
     scaler = StandardScaler()
     standardized_data = scaler.fit_transform(data)
 
@@ -36,12 +31,11 @@ def standardize_data(data):
 def apply_pca(data):
     standardized_data = standardize_data(data)
 
-    # Perform PCA
     pca = PCA(n_components=2)
     principal_components = pca.fit_transform(standardized_data)
 
     # Create a DataFrame with the principal components
-    pca_df = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
+    pca_df = pd.DataFrame(data=principal_components, columns=["PC1", "PC2"])
 
     return pca_df
 
@@ -49,12 +43,11 @@ def apply_pca(data):
 def apply_tsne(data):
     standardized_data = standardize_data(data)
 
-    # Perform TSNE
     tsne = TSNE(n_components=2, random_state=1)
     x_embedded = tsne.fit_transform(standardized_data)
 
     # Create a DataFrame with the principal components
-    tsne_df = pd.DataFrame(data=x_embedded, columns=['PC1', 'PC2'])
+    tsne_df = pd.DataFrame(data=x_embedded, columns=["PC1", "PC2"])
 
     return tsne_df 
 
@@ -65,33 +58,19 @@ def apply_k_nearest(data, target):
     standardized_data = standardize_data(X)
     std_X = pd.DataFrame(standardized_data)
 
-    # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(std_X, y, random_state=2)
 
-    # Initialize the k-NN classifier with k=3
     knn = KNeighborsClassifier(n_neighbors=3)
-
-    # Fit the classifier to the training data
     knn.fit(X_train, y_train)
-
-    # Predict the labels of the test set
     y_pred = knn.predict(X_test)
 
-    # Performance metrics
-    # accuracy = accuracy_score(y_test, y_pred)
-    # report = classification_report(y_test, y_pred)
-    # precision = precision_score(y_test, y_pred, average='macro')
-    # recall = recall_score(y_test, y_pred, average='macro')
-    # f1 = f1_score(y_test, y_pred, average='macro')
-    # cm = confusion_matrix(y_test, y_pred)
-
     performance_metrics = {
-        'accuracy': accuracy_score(y_test, y_pred),
-        'report': classification_report(y_test, y_pred),
-        'precision': precision_score(y_test, y_pred, average='macro'),
-        'recall': recall_score(y_test, y_pred, average='macro'),
-        'f1': f1_score(y_test, y_pred, average='macro'),
-        'cm': confusion_matrix(y_test, y_pred)
+        "accuracy": accuracy_score(y_test, y_pred),
+        "report": classification_report(y_test, y_pred),
+        "precision": precision_score(y_test, y_pred, average="macro"),
+        "recall": recall_score(y_test, y_pred, average="macro"),
+        "f1": f1_score(y_test, y_pred, average="macro"),
+        "cm": confusion_matrix(y_test, y_pred)
     }
 
     return y_pred, performance_metrics
@@ -101,33 +80,19 @@ def apply_random_forests(data, target):
     X = data.drop(columns=[target])
     y = data[target]
 
-    # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=2)
 
-    # Initialize the RandomForestClassifier
     rf_classifier = RandomForestClassifier(n_estimators=100, random_state=2)
-
-    # Fit the model on the training data
     rf_classifier.fit(X_train, y_train)
-
-    # Make predictions on the test data
     y_pred = rf_classifier.predict(X_test)
 
-    # Performance metrics
-    # accuracy = accuracy_score(y_test, y_pred)
-    # report = classification_report(y_test, y_pred)
-    # precision = precision_score(y_test, y_pred, average='macro')
-    # recall = recall_score(y_test, y_pred, average='macro')
-    # f1 = f1_score(y_test, y_pred, average='macro')
-    # cm = confusion_matrix(y_test, y_pred)
-
     performance_metrics = {
-        'accuracy': accuracy_score(y_test, y_pred),
-        'report': classification_report(y_test, y_pred),
-        'precision': precision_score(y_test, y_pred, average='macro'),
-        'recall': recall_score(y_test, y_pred, average='macro'),
-        'f1': f1_score(y_test, y_pred, average='macro'),
-        'cm': confusion_matrix(y_test, y_pred)
+        "accuracy": accuracy_score(y_test, y_pred),
+        "report": classification_report(y_test, y_pred),
+        "precision": precision_score(y_test, y_pred, average="macro"),
+        "recall": recall_score(y_test, y_pred, average="macro"),
+        "f1": f1_score(y_test, y_pred, average="macro"),
+        "cm": confusion_matrix(y_test, y_pred)
     }
 
     return y_pred, performance_metrics
@@ -135,29 +100,16 @@ def apply_random_forests(data, target):
 
 def apply_k_means(data):
     standardized_data = standardize_data(data)
-    # data = standardized_data
 
-    # Create a KMeans instance with 2 clusters
     kmeans = KMeans(n_clusters=2)
-
-    # Fit the model to the data
     kmeans.fit(data)
-
-    # Get the cluster labels
     labels = kmeans.labels_
-
-    # Get the cluster centers
     centers = kmeans.cluster_centers_
 
-    # Performance
-    # inertia = kmeans.inertia_
-    # silhouette = silhouette_score(data, labels)
-    # calinski_harabasz = calinski_harabasz_score(data, labels)
-
     performance_metrics = {
-        'inertia': kmeans.inertia_,
-        'silhouette': silhouette_score(data, labels),
-        'calinski_harabasz': calinski_harabasz_score(data, labels)
+        "inertia": kmeans.inertia_,
+        "silhouette": silhouette_score(data, labels),
+        "calinski_harabasz": calinski_harabasz_score(data, labels)
     }
 
     return labels, centers, performance_metrics
@@ -169,8 +121,8 @@ def apply_dbscan(data):
     labels = dbscan.fit_predict(data)
 
     performance_metrics = {
-        'silhouette': silhouette_score(data, labels),
-        'calinski_harabasz': calinski_harabasz_score(data, labels)
+        "silhouette": silhouette_score(data, labels),
+        "calinski_harabasz": calinski_harabasz_score(data, labels)
     }
 
     return labels, dbscan, performance_metrics
@@ -261,9 +213,6 @@ def show_ml_classification(data):
     if target != "--- SELECT ---":
         results["k-nearest"]["y_pred"], results["k-nearest"]["performance_metrics"] = apply_k_nearest(data, target)
 
-        # st.header("Predicted values:")
-        # st.write(y_pred)
-
         tab1, tab2, tab3, tab4, tab5, tab6= st.tabs([
             "Accuracy",
             "Report",
@@ -296,9 +245,6 @@ def show_ml_classification(data):
     st.header("Random Forests")
     if target != "--- SELECT ---":
         results["random forests"]["y_pred"], results["random forests"]["performance_metrics"] = apply_random_forests(data, target)
-
-        # st.header("Predicted values:")
-        # st.write(y_pred)
 
         tab1, tab2, tab3, tab4, tab5, tab6= st.tabs([
             "Accuracy",
@@ -420,10 +366,6 @@ def show_ml_clustering(data):
     else:
         st.write("Random forrest has better calinski_harabasz")
 
-
-
-
-
 def show_info():
     st.title("Info tab")
     st.write("Show info about the project")
@@ -441,17 +383,13 @@ def main():
 
     is_file_uploaded = False
     cleaned_data = None
-    # performance_metrics = {
-    #     "classification": {},
-    #     "clustering": {}
-    # }
 
     if uploaded_file is not None:
         if dataset_has_index:
-            data = pd.read_csv(uploaded_file, encoding='latin1', index_col=0)
+            data = pd.read_csv(uploaded_file, encoding="latin1", index_col=0)
             data = data.reset_index(drop=True)
         else:
-            data = pd.read_csv(uploaded_file, encoding='latin1')
+            data = pd.read_csv(uploaded_file, encoding="latin1")
             data = data.reset_index(drop=True)
 
         is_file_uploaded = True
@@ -475,26 +413,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# TODO:
-# 1. Think about if you want to give user only discrete values
-#     when selecting target values for ML
-# 2. Try to find a good way to visualize K-Means
-# 3. Standardize all data before doing ML algorithms
-# 4. either use  '' or "" for strings
-# 5. MAYBE use dictionary for "results" variable
-# 6. consider returning the DBSCAN object instead of centers
-# 7. consider returning a performance dictionary instead of all the perform variables
-# 8. either use fit() or fit_predict() in all function, same format is better
-# 9. Notify the user if they haven't selected a target/parameter
-
-# TODO: 
-# 1. Clean the unnessasarry text
-# 2. Remove any debugging writes/prints
-# 3. Finish the structure of "Home" and "2D Visual" tabs
-# 4. Proceed to the ML tabs
-
-
-# data['Cluster'] = labels
-# st.write(data)
-# st.write("Cluster centers: ", centers)
