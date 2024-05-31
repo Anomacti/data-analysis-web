@@ -6,7 +6,7 @@ A web application for analysing tabular data and performing machine learning alg
 
 - Ανανίας Χορόζογλου - Π2020019
 
-## Intructions for running the project
+## Instructions for running the project
 
 ### Docker build
 
